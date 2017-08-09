@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "36510B011F307BC6006D30AF"
-               BuildableName = "DemoMaterialApp.app"
-               BlueprintName = "DemoMaterialApp"
-               ReferencedContainer = "container:DemoMaterialApp.xcodeproj">
+               BuildableName = "ShareYourMoment.app"
+               BlueprintName = "ShareYourMoment"
+               ReferencedContainer = "container:ShareYourMoment.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "36510B151F307BC7006D30AF"
-               BuildableName = "DemoMaterialAppTests.xctest"
-               BlueprintName = "DemoMaterialAppTests"
-               ReferencedContainer = "container:DemoMaterialApp.xcodeproj">
+               BuildableName = "ShareYourMomentTests.xctest"
+               BlueprintName = "ShareYourMomentTests"
+               ReferencedContainer = "container:ShareYourMoment.xcodeproj">
             </BuildableReference>
          </TestableReference>
          <TestableReference
@@ -43,9 +43,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "36510B201F307BC7006D30AF"
-               BuildableName = "DemoMaterialAppUITests.xctest"
-               BlueprintName = "DemoMaterialAppUITests"
-               ReferencedContainer = "container:DemoMaterialApp.xcodeproj">
+               BuildableName = "ShareYourMomentUITests.xctest"
+               BlueprintName = "ShareYourMomentUITests"
+               ReferencedContainer = "container:ShareYourMoment.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -53,9 +53,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "36510B011F307BC6006D30AF"
-            BuildableName = "DemoMaterialApp.app"
-            BlueprintName = "DemoMaterialApp"
-            ReferencedContainer = "container:DemoMaterialApp.xcodeproj">
+            BuildableName = "ShareYourMoment.app"
+            BlueprintName = "ShareYourMoment"
+            ReferencedContainer = "container:ShareYourMoment.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -76,9 +76,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "36510B011F307BC6006D30AF"
-            BuildableName = "DemoMaterialApp.app"
-            BlueprintName = "DemoMaterialApp"
-            ReferencedContainer = "container:DemoMaterialApp.xcodeproj">
+            BuildableName = "ShareYourMoment.app"
+            BlueprintName = "ShareYourMoment"
+            ReferencedContainer = "container:ShareYourMoment.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -95,9 +95,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "36510B011F307BC6006D30AF"
-            BuildableName = "DemoMaterialApp.app"
-            BlueprintName = "DemoMaterialApp"
-            ReferencedContainer = "container:DemoMaterialApp.xcodeproj">
+            BuildableName = "ShareYourMoment.app"
+            BlueprintName = "ShareYourMoment"
+            ReferencedContainer = "container:ShareYourMoment.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

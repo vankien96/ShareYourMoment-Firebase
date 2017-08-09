@@ -10,9 +10,15 @@ import UIKit
 
 class ListFriendTableViewCell: UITableViewCell {
 
+    @IBOutlet var imgAvatar: UIImageView!
+    @IBOutlet var lbName: UILabel!
+    @IBOutlet var lbAddress: UILabel!
+    @IBOutlet var lbPhone: UILabel!
+    @IBOutlet var lbEmail: UILabel!
+    @IBOutlet var viewExpand: UIView!
+    @IBOutlet var constraintHeight: NSLayoutConstraint!
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {

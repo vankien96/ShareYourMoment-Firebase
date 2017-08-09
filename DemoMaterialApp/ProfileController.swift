@@ -7,29 +7,83 @@
 //
 
 import UIKit
+import FirebaseAuth
 
 class ProfileController: UIViewController {
 
+    @IBOutlet var btnSave: UIButton!
+    @IBOutlet var imgAvatar: UIImageView!
+    @IBOutlet var btnBack: UIButton!
+    @IBOutlet var txtName: UITextField!
+    @IBOutlet var txtAddress: UITextField!
+    @IBOutlet var txtEmail: UITextField!
+    @IBOutlet var txtPhone: UITextField!
+    
+    
+    var userInfo:Member!
+    
+    @IBOutlet var viewInfo: UIView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
+        
+        self.hideKeyboardWhenTappedAround()
+        self.enableEdit(false)
+        let useruid = FIRAuth.auth()?.currentUser?.uid
+        GetMemberData.getProfile(userUID: useruid!) { (userInfo) in
+            self.userInfo = userInfo
+            self.setDataToview()
+        }
     }
-
+    override func viewWillAppear(_ animated: Bool) {
+        btnBack.setImage(UIImage(named: "icon_backspace")?.tint(with: UIColor.white), for: .normal)
+        btnSave.layer.cornerRadius = 10
+        
+        viewInfo.layer.borderWidth = 1.0
+        viewInfo.layer.borderColor = UIColor.clear.cgColor
+        viewInfo.layer.masksToBounds = true
+        viewInfo.layer.shadowColor = UIColor.gray.cgColor
+        viewInfo.layer.shadowOffset = CGSize(width: 0, height: 0.5)
+        viewInfo.layer.shadowRadius = 5.0
+        viewInfo.layer.shadowOpacity = 1.0
+        viewInfo.layer.masksToBounds = false
+        
+    }
+    func setDataToview() {
+        if userInfo != nil {
+            imgAvatar.image = UIImage(named: userInfo.image)
+            txtName.text = userInfo.name
+            txtAddress.text = userInfo.address
+            txtEmail.text = userInfo.email
+            txtPhone.text = userInfo.phoneNumber
+        }
+    }
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+    }
+    @IBAction func clickOnButtonBack(_ sender: Any) {
+        
+        
+        self.navigationController?.popViewController(animated: true)
+        
+        
     }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
+    @IBAction func clickOnButtonEdit(_ sender: Any) {
+        self.enableEdit(true)
+        txtName.becomeFirstResponder()
     }
-    */
+
+    @IBAction func clickOnButtonSaveButton(_ sender: Any) {
+        self.enableEdit(false)
+    }
+    
+    func enableEdit(_ edit:Bool){
+        txtName.isUserInteractionEnabled = edit
+        txtAddress.isUserInteractionEnabled = edit
+        txtPhone.isUserInteractionEnabled = edit
+        txtEmail.isUserInteractionEnabled = edit
+        
+    }
 
 }
