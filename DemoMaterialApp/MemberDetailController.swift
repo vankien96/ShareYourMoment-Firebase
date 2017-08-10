@@ -15,15 +15,24 @@ class MemberDetailController: UIViewController {
     @IBOutlet var lbName: UILabel!
     @IBOutlet var btnBack: UIButton!
     @IBOutlet var viewAbout: UIView!
+    @IBOutlet var txtAbout: UITextView!
     
     var userInfo:Member!
     override func viewDidLoad() {
         super.viewDidLoad()
     }
     override func viewWillAppear(_ animated: Bool) {
-        imgAvatar.image = UIImage(named: userInfo.image)
+        imgAvatar.layer.cornerRadius = 60.0
+        imgAvatar.clipsToBounds = true
+        DispatchQueue.global(qos: .userInitiated).async {
+            let data = try? Data(contentsOf: URL(string: self.userInfo.image)!)
+            DispatchQueue.main.async {
+                self.imgAvatar.image = UIImage(data: data!)
+            }
+        }
         lbName.text = userInfo.name
         lbAddress.text = userInfo.address
+        txtAbout.text = userInfo.about
         
         btnBack.setImage(UIImage(named: "icon_backspace")?.tint(with: UIColor.white), for: .normal)
         

@@ -21,6 +21,7 @@ class NewFeedViewCell: UICollectionViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
+        imgAvatar.layer.cornerRadius = 20.0
+        imgAvatar.clipsToBounds = true
     }
-
 }

@@ -47,11 +47,22 @@ class ProfileController: UIViewController {
         viewInfo.layer.shadowRadius = 5.0
         viewInfo.layer.shadowOpacity = 1.0
         viewInfo.layer.masksToBounds = false
+        imgAvatar.clipsToBounds = true
+        imgAvatar.layer.cornerRadius = 40
         
     }
     func setDataToview() {
         if userInfo != nil {
-            imgAvatar.image = UIImage(named: userInfo.image)
+            DispatchQueue.global(qos: .userInitiated).async {
+                let url = URL(string: self.userInfo.image)
+                if let data:Data = try? Data(contentsOf: url!) {
+                    DispatchQueue.main.async {
+                        UIView.transition(with: self.imgAvatar, duration: 0.5, options: .transitionCrossDissolve, animations: { 
+                            self.imgAvatar.image = UIImage(data: data)
+                        }, completion: nil)
+                    }
+                }
+            }
             txtName.text = userInfo.name
             txtAddress.text = userInfo.address
             txtEmail.text = userInfo.email

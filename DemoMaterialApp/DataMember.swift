@@ -19,22 +19,31 @@ struct Member{
     var about:String!
 }
 class GetMemberData{
-    class func getMemberData() -> [Member]{
+    class func getMemberData(completion: @escaping (([Member]) -> Void)){
         var memberData:[Member] = [Member]()
-        var member = Member(idMember: "001", name: "Trương Văn Kiên", image: "man2", phoneNumber: "0946876983", email: "vankien1004@gmail.com", address: "66 Vo Van Tan, Da Nang",about: "")
-        memberData.append(member)
-        
-        member = Member(idMember: "002", name: "Jordan Robinson", image: "man3", phoneNumber: "0969645289", email: "khongbiettengi@gmail.com", address: "LA, American",about: "")
-        memberData.append(member)
-        
-        member = Member(idMember: "003", name: "Jose Ewards", image: "man4", phoneNumber: "01214505045", email: "joseandjuliet@gmail.com", address: "Bejing, China",about: "")
-        memberData.append(member)
-        
-        member = Member(idMember: "004", name: "Helen Berry", image: "man5", phoneNumber: "63526983", email: "Heliox20@gmail.com", address: "Xvanika, Germany",about: "")
-        memberData.append(member)
-        
-        
-        return memberData
+        var ref:FIRDatabaseReference!
+        ref = FIRDatabase.database().reference()
+        ref.child("users").observeSingleEvent(of: .value, with: { (snapshot) in
+            if let value = snapshot.value as? [String:Any]{
+                print(value)
+                for item in value{
+                    var user:Member = Member()
+                    user.idMember = item.key
+                    if let dicInfo = item.value as? [String:String]{
+                        user.about = dicInfo["About"]
+                        user.address = dicInfo["Address"]
+                        user.email = dicInfo["Email"]
+                        user.image = dicInfo["Image"]
+                        user.phoneNumber = dicInfo["Phone"]
+                        user.name = dicInfo["Name"]
+                        memberData.append(user)
+                    }
+                }
+                completion(memberData)
+            }else{
+                print("Error")
+            }
+        })
     }
     class func getProfile(userUID:String ,completion: @escaping ((Member) -> Void)){
         print(userUID)
@@ -42,7 +51,7 @@ class GetMemberData{
         ref = FIRDatabase.database().reference()
         var userInfo = Member()
         ref.child("users").child(userUID).observeSingleEvent(of: .value, with: { (snapshot) in
-            if let value:[String:String] = snapshot.value as! [String:String]{
+            if let value:[String:String] = snapshot.value as? [String:String]{
                 userInfo.idMember = userUID
                 userInfo.name = value["Name"]
                 userInfo.phoneNumber = value["Phone"]

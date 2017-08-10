@@ -42,11 +42,24 @@ class AfterSignUpController: UIViewController,UITextFieldDelegate,UIImagePickerC
 
     }
     @IBAction func clickOnButtonEdit(_ sender: Any) {
-        let picker = UIImagePickerController()
-        picker.delegate = self
-        picker.allowsEditing = true
-        picker.sourceType = .photoLibrary
-        self.present(picker, animated: true, completion: nil)
+        let alert = UIAlertController(title: "", message: "Choose your way to post an image", preferredStyle: .actionSheet)
+        let actionLibrary = UIAlertAction(title: "Open Library", style: .default) { (action) in
+            let picker = UIImagePickerController()
+            picker.delegate = self
+            picker.allowsEditing = true
+            picker.sourceType = .photoLibrary
+            self.present(picker, animated: true, completion: nil)
+        }
+        let actionCamera = UIAlertAction(title: "Open Camera", style: .default) { (action) in
+            let picker = UIImagePickerController()
+            picker.delegate = self
+            picker.allowsEditing = true
+            picker.sourceType = .camera
+            self.present(picker, animated: true, completion: nil)
+        }
+        alert.addAction(actionLibrary)
+        alert.addAction(actionCamera)
+        self.present(alert, animated: true, completion: nil)
     }
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         print("finish")
@@ -74,12 +87,32 @@ class AfterSignUpController: UIViewController,UITextFieldDelegate,UIImagePickerC
             print("set value")
             var ref:FIRDatabaseReference!
             ref = FIRDatabase.database().reference()
-            
-            ref.child("users").child(userUID!).setValue(["Name":txtName.text!,"Phone":txtPhone.text!,"Address":txtAddress.text!,"Email":email,"About":txtAbout.text!,"Image":"man"])
-            
-            let controller = self.storyboard?.instantiateViewController(withIdentifier: "NewFeedController") as! NewFeedController
-            
+            self.uploadImage(completion: { (metadata) in
+                ref.child("users").child(self.userUID!).setValue(["Name":self.txtName.text!,"Phone":self.txtPhone.text!,"Address":self.txtAddress.text!,"Email":self.email,"About":self.txtAbout.text!,"Image":"\((metadata.downloadURL())!)"])
+                let controller = self.storyboard?.instantiateViewController(withIdentifier: "NewFeedController") as! NewFeedController
+                self.navigationController?.pushViewController(controller, animated: true)
+            })
         }
+        
+        
+    }
+    func uploadImage(completion: @escaping ((_ metadata:FIRStorageMetadata) ->Void)){
+        if let data = UIImageJPEGRepresentation(imgAvatar.image!, 1.0) {
+            print("upload image")
+            let storageRef =  FIRStorage.storage().reference().child("avatars").child("\(userUID!).jpeg")
+            let metadataUpload = FIRStorageMetadata()
+            metadataUpload.contentType = "image/jpeg"
+            
+            let uploadTask = storageRef.put(data, metadata: metadataUpload, completion: { (metadata, error) in
+                if error != nil {
+                    print((error?.localizedDescription)!)
+                }else{
+                    print((metadata?.downloadURL())!)
+                    completion(metadata!)
+                }
+            })
+        }
+        
         
     }
     

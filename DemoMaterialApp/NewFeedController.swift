@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Firebase
 
 class NewFeedController: UIViewController,UICollectionViewDataSource,UICollectionViewDelegate,UICollectionViewDelegateFlowLayout{
 
@@ -26,18 +27,39 @@ class NewFeedController: UIViewController,UICollectionViewDataSource,UICollectio
     
     
     
-    var statusData:[AStatus] = GetStatusData.getStatusData()
-    var memberData:[Member] = GetMemberData.getMemberData()
+    var statusData:[AStatus] = [AStatus]()
+    var memberData:[Member] = [Member]()
+    var userInfo:Member!
     
     var originalSizeOfCell:CGRect!
     var indexPath:IndexPath!
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        self.view.isUserInteractionEnabled = false
         newFeedCollection.dataSource = self
         newFeedCollection.delegate = self
         let nib = UINib(nibName: "NewFeedViewCell", bundle: nil)
         newFeedCollection.register(nib, forCellWithReuseIdentifier: "newFeedViewCell")
+        
+        //get data
+        GetMemberData.getMemberData(completion:{ (user) in
+            if user.count != 0{
+                self.memberData = user
+            }
+        })
+        print(UserDefaults.standard.string(forKey: "USERID")!)
+        GetMemberData.getProfile(userUID: UserDefaults.standard.string(forKey: "USERID")!) { (user) in
+            self.userInfo = user
+            self.view.isUserInteractionEnabled = true
+        }
+        DispatchQueue.global(qos: .userInitiated).async {
+            GetStatusData.getStatusData { (statusData) in
+                self.statusData = statusData
+                DispatchQueue.main.async {
+                    self.newFeedCollection.reloadData()
+                }
+            }
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -46,14 +68,10 @@ class NewFeedController: UIViewController,UICollectionViewDataSource,UICollectio
         viewButtonBack.layer.cornerRadius = 20
         viewContainNewFeed.isUserInteractionEnabled = true
         viewContainNewFeed.transform = .identity
-       let userInfo:Member = self.foundMember(UserDefaults.standard.string(forKey: "USERID")!)
-        lbName.text = userInfo.name
-        imgAvatar.image = UIImage(named: userInfo.image)
-        
     }
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+        //Dispose of any resources that can be recreated.
     }
     
     
@@ -68,12 +86,11 @@ class NewFeedController: UIViewController,UICollectionViewDataSource,UICollectio
         let member = foundMember(statusData[indexPath.item].idMember)
         cell.imgmain.image = UIImage()
         DispatchQueue.global(qos: .userInitiated).async {
-            let avatar = UIImage(named: member.image)
-            let newmain:UIImage = self.resizeImage(with: self.statusData[indexPath.row].image)
+            let dataAvatar = try? Data(contentsOf: URL(string: member.image)!)
             DispatchQueue.main.async {
                 UIView.transition(with: cell.imgmain, duration: 0.4, options: .transitionCrossDissolve, animations: {
-                    cell.imgAvatar.image = avatar
-                    cell.imgmain.image = newmain
+                    cell.imgAvatar.image = UIImage(data: dataAvatar!)
+                    cell.imgmain.image = self.statusData[indexPath.row].image
                 }, completion: nil)
             }
         }
@@ -176,19 +193,23 @@ class NewFeedController: UIViewController,UICollectionViewDataSource,UICollectio
         }, completion: nil)
     }
     @IBAction func clickOnButtonLogOut(_ sender: Any) {
-        UserDefaults.standard.setValue("", forKey: "USERID")
-        self.navigationController?.popToRootViewController(animated: true)
+        do {
+            try FIRAuth.auth()?.signOut()
+            UserDefaults.standard.setValue("", forKey: "USERID")
+            self.navigationController?.popToRootViewController(animated: true)
+        }catch{
+            print("error")
+        }
     }
     
     @IBAction func clickOnButtonListFriend(_ sender: Any) {
         let controller = self.storyboard?.instantiateViewController(withIdentifier: "ListFriendController") as! ListFriendController
+        controller.friendData = memberData
         self.navigationController?.pushViewController(controller, animated: true)
         
     }
     @IBAction func clickOnButtonProfile(_ sender: Any) {
         let controller = self.storyboard?.instantiateViewController(withIdentifier: "ProfileController") as! ProfileController
-        let member = self.foundMember(UserDefaults.standard.string(forKey: "USERID")!)
-        //controller.userInfo = member
         self.navigationController?.pushViewController(controller, animated: true)
         
     }
@@ -196,6 +217,7 @@ class NewFeedController: UIViewController,UICollectionViewDataSource,UICollectio
     
     @IBAction func clickOnButtonAddNewStatus(_ sender: Any) {
         let controller = self.storyboard?.instantiateViewController(withIdentifier: "NewStatusController") as! NewStatusController
+        controller.userInfo = userInfo
         self.navigationController?.pushViewController(controller, animated: true)
     }
     

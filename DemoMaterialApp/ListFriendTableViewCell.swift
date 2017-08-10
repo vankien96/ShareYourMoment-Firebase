@@ -19,6 +19,8 @@ class ListFriendTableViewCell: UITableViewCell {
     @IBOutlet var constraintHeight: NSLayoutConstraint!
     override func awakeFromNib() {
         super.awakeFromNib()
+        imgAvatar.layer.cornerRadius = 22.5
+        imgAvatar.clipsToBounds = true
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {

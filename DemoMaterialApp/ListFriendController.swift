@@ -13,7 +13,7 @@ class ListFriendController: UIViewController,UITableViewDataSource,UITableViewDe
     @IBOutlet var btnBack: UIButton!
     @IBOutlet var tbvListFriend: UITableView!
     
-    var friendData:[Member] = GetMemberData.getMemberData()
+    var friendData:[Member]!
     var selectIndex:Int = -1
     var Expand:[Bool] = [Bool]()
     override func viewDidLoad() {
@@ -48,7 +48,16 @@ class ListFriendController: UIViewController,UITableViewDataSource,UITableViewDe
         let cell = tableView.dequeueReusableCell(withIdentifier: "listFriendTableViewCell", for: indexPath) as! ListFriendTableViewCell
         let member = friendData[indexPath.row]
         
-        cell.imgAvatar.image = UIImage(named: member.image)
+        DispatchQueue.global(qos: .userInitiated).async {
+            if let data = try? Data(contentsOf: URL(string: member.image)!){
+                let image = UIImage(data: data)
+                DispatchQueue.main.async {
+                    UIView.transition(with: cell.imgAvatar, duration: 0.5, options: .transitionCrossDissolve, animations: { 
+                        cell.imgAvatar.image = image
+                    }, completion: nil)
+                }
+            }
+        }
         cell.lbName.text = member.name
         cell.lbAddress.text = member.address
         cell.lbPhone.text = member.phoneNumber

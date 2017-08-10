@@ -191,13 +191,13 @@ class WelcomeController: UIViewController,UITextFieldDelegate {
                 FIRAuth.auth()?.signIn(withEmail: txtUsername.text!, password: txtPassword.text!, completion: { (user, error) in
                     if error == nil {
                         print((user?.uid)!)
-                        self.userDefaults.setValue("002", forKey: "USERID")
+                        self.userDefaults.setValue((user?.uid)!, forKey: "USERID")
                         let controller = self.storyboard?.instantiateViewController(withIdentifier: "NewFeedController") as! NewFeedController
                         
                         self.navigationController?.pushViewController(controller, animated: true)
                     }else{
                         print("Have some error")
-                        let alert = UIAlertController(title: "Signin Failed", message: "Your username or password is wrong", preferredStyle: .alert)
+                        let alert = UIAlertController(title: "Signin Failed", message: (error?.localizedDescription)!, preferredStyle: .alert)
                         let action = UIAlertAction(title: "OK", style: .default, handler: { (action) in
                             self.dismiss(animated: true, completion: nil)
                         })
@@ -217,23 +217,43 @@ class WelcomeController: UIViewController,UITextFieldDelegate {
     }
     @IBAction func clickOnButtonSignUp(_ sender: Any) {
         if self.connectedToNetwork() {
-            FIRAuth.auth()?.createUser(withEmail: txtEmailSignUp.text!, password: txtPasswordSignUp.text!, completion: { (user, error) in
-                if error != nil {
-                    print("Have some error \(error?.localizedDescription)")
-                    let alert = UIAlertController(title: "Failed", message: "\((error?.localizedDescription)!)", preferredStyle: .alert)
-                    let action = UIAlertAction(title: "OK", style: .default, handler: { (action) in
-                        self.dismiss(animated: true, completion: nil)
-                    })
-                    alert.addAction(action)
-                    self.present(alert, animated: true, completion: nil)
-                }else{
-                    print("Sign up success")
-                    let controller = self.storyboard?.instantiateViewController(withIdentifier: "AfterSignUpController") as! AfterSignUpController
-                    controller.userUID = user?.uid
-                    controller.email = self.txtEmailSignUp.text!
-                    self.navigationController?.pushViewController(controller, animated: true)
-                }
-            })
+            if txtEmailSignUp.text == "" || txtPasswordSignUp.text == "" || txtPasswordAgain.text == "" {
+                let alert = UIAlertController(title: "Warning", message: "Please complete all field", preferredStyle: .alert)
+                let action = UIAlertAction(title: "OK", style: .default, handler: { (action) in
+                    self.dismiss(animated: true, completion: nil)
+                })
+                alert.addAction(action)
+                self.present(alert, animated: true, completion: nil)
+            }else if txtPasswordSignUp.text != txtPasswordAgain.text{
+                let alert = UIAlertController(title: "Warning", message: "Retype password not the same as password", preferredStyle: .alert)
+                let action = UIAlertAction(title: "OK", style: .default, handler: { (action) in
+                    self.dismiss(animated: true, completion: nil)
+                })
+                alert.addAction(action)
+                self.present(alert, animated: true, completion: nil)
+            }else{
+                FIRAuth.auth()?.createUser(withEmail: txtEmailSignUp.text!, password: txtPasswordSignUp.text!, completion: { (user, error) in
+                    if error != nil {
+                        print("Have some error \((error?.localizedDescription)!)")
+                        let alert = UIAlertController(title: "Failed", message: "\((error?.localizedDescription)!)", preferredStyle: .alert)
+                        let action = UIAlertAction(title: "OK", style: .default, handler: { (action) in
+                            self.dismiss(animated: true, completion: nil)
+                        })
+                        alert.addAction(action)
+                        self.present(alert, animated: true, completion: nil)
+                    }else{
+                        self.userDefaults.setValue((user?.uid)!, forKey: "USERID")
+                        print("Sign up success")
+                        let controller = self.storyboard?.instantiateViewController(withIdentifier: "AfterSignUpController") as! AfterSignUpController
+                        controller.userUID = user?.uid
+                        controller.email = self.txtEmailSignUp.text!
+                        self.navigationController?.pushViewController(controller, animated: true)
+                    }
+                })
+
+            }
+        
+        
         }else{
             let alert = UIAlertController(title: "Connection", message: "Please check your connection", preferredStyle: .alert)
             let action = UIAlertAction(title: "OK", style: .default, handler: { (action) in
