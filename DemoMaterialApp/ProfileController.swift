@@ -30,10 +30,6 @@ class ProfileController: UIViewController {
         self.hideKeyboardWhenTappedAround()
         self.enableEdit(false)
         let useruid = FIRAuth.auth()?.currentUser?.uid
-        GetMemberData.getProfile(userUID: useruid!) { (userInfo) in
-            self.userInfo = userInfo
-            self.setDataToview()
-        }
     }
     override func viewWillAppear(_ animated: Bool) {
         btnBack.setImage(UIImage(named: "icon_backspace")?.tint(with: UIColor.white), for: .normal)
@@ -49,6 +45,7 @@ class ProfileController: UIViewController {
         viewInfo.layer.masksToBounds = false
         imgAvatar.clipsToBounds = true
         imgAvatar.layer.cornerRadius = 40
+        self.setDataToview()
         
     }
     func setDataToview() {

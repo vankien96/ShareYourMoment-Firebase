@@ -44,7 +44,6 @@ class ListFriendController: UIViewController,UITableViewDataSource,UITableViewDe
         return friendData.count
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        print("cell for row")
         let cell = tableView.dequeueReusableCell(withIdentifier: "listFriendTableViewCell", for: indexPath) as! ListFriendTableViewCell
         let member = friendData[indexPath.row]
         
@@ -77,7 +76,6 @@ class ListFriendController: UIViewController,UITableViewDataSource,UITableViewDe
         return CGFloat.leastNonzeroMagnitude
     }
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        print("Height")
         if selectIndex != -1{
             if selectIndex == indexPath.row && Expand[indexPath.row]{
                 return 120.0

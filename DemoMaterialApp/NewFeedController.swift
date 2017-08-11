@@ -35,7 +35,6 @@ class NewFeedController: UIViewController,UICollectionViewDataSource,UICollectio
     var indexPath:IndexPath!
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.isUserInteractionEnabled = false
         newFeedCollection.dataSource = self
         newFeedCollection.delegate = self
         let nib = UINib(nibName: "NewFeedViewCell", bundle: nil)
@@ -50,24 +49,31 @@ class NewFeedController: UIViewController,UICollectionViewDataSource,UICollectio
         print(UserDefaults.standard.string(forKey: "USERID")!)
         GetMemberData.getProfile(userUID: UserDefaults.standard.string(forKey: "USERID")!) { (user) in
             self.userInfo = user
-            self.view.isUserInteractionEnabled = true
-        }
-        DispatchQueue.global(qos: .userInitiated).async {
-            GetStatusData.getStatusData { (statusData) in
-                self.statusData = statusData
+            self.lbName.text = self.userInfo.name
+            DispatchQueue.global(qos: .userInitiated).async {
+                let data = try? Data(contentsOf: URL(string: self.userInfo.image)!)
                 DispatchQueue.main.async {
-                    self.newFeedCollection.reloadData()
+                    self.imgAvatar.image = UIImage(data: data!)
                 }
+            }
+        }
+        GetStatusData.getStatusData { (statusData) in
+            self.statusData = statusData
+            DispatchQueue.main.async {
+                self.newFeedCollection.reloadData()
             }
         }
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        imgAvatar.layer.cornerRadius = 20.0
+        imgAvatar.clipsToBounds = true
         imgAdd.image = imgAdd.image?.tint(with: UIColor.white)
         viewButtonAdd.layer.cornerRadius = 25
         viewButtonBack.layer.cornerRadius = 20
-        viewContainNewFeed.isUserInteractionEnabled = true
         viewContainNewFeed.transform = .identity
+        
+        self.viewButtonAdd.isUserInteractionEnabled = true
     }
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -210,6 +216,7 @@ class NewFeedController: UIViewController,UICollectionViewDataSource,UICollectio
     }
     @IBAction func clickOnButtonProfile(_ sender: Any) {
         let controller = self.storyboard?.instantiateViewController(withIdentifier: "ProfileController") as! ProfileController
+        controller.userInfo = userInfo
         self.navigationController?.pushViewController(controller, animated: true)
         
     }
@@ -218,6 +225,7 @@ class NewFeedController: UIViewController,UICollectionViewDataSource,UICollectio
     @IBAction func clickOnButtonAddNewStatus(_ sender: Any) {
         let controller = self.storyboard?.instantiateViewController(withIdentifier: "NewStatusController") as! NewStatusController
         controller.userInfo = userInfo
+        self.viewButtonAdd.isUserInteractionEnabled = false
         self.navigationController?.pushViewController(controller, animated: true)
     }
     
