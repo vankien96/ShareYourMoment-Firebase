@@ -11,6 +11,11 @@ import Firebase
 
 class NewStatusController: UIViewController,UITextViewDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate{
 
+    @IBOutlet var viewIndicator: UIView!
+    @IBOutlet var activityIndicator: UIActivityIndicatorView!
+    
+    
+    
     @IBOutlet var viewTextView: UIView!
     @IBOutlet var btnBack: UIButton!
     @IBOutlet var imgAvatar: UIImageView!
@@ -28,7 +33,9 @@ class NewStatusController: UIViewController,UITextViewDelegate,UIImagePickerCont
         btnBack.setImage(UIImage(named: "icon_backspace")?.tint(with: UIColor.white), for: .normal)
         imgAvatar.layer.cornerRadius = 20.0
         imgAvatar.clipsToBounds = true
-        
+        viewIndicator.layer.cornerRadius = 10.0
+        viewIndicator.isHidden = true
+        activityIndicator.isHidden = true
         //set shadow
         viewTextView.layer.borderWidth = 1.0
         viewTextView.layer.borderColor = UIColor.clear.cgColor
@@ -41,7 +48,7 @@ class NewStatusController: UIViewController,UITextViewDelegate,UIImagePickerCont
         
         if userInfo != nil {
             lbName.text = userInfo.name
-            DispatchQueue.global(qos: .userInitiated).async {
+            DispatchQueue.global(qos: .userInteractive).async {
                 if let data = try? Data(contentsOf: URL(string: self.userInfo.image)!){
                     DispatchQueue.main.async {
                         UIView.transition(with: self.imgAvatar, duration: 0.4, options: .transitionCrossDissolve, animations: {
@@ -58,6 +65,7 @@ class NewStatusController: UIViewController,UITextViewDelegate,UIImagePickerCont
         
     }
     @IBAction func clickOnButtonback(_ sender: Any) {
+        self.btnBack.isUserInteractionEnabled = false
         self.navigationController?.popViewController(animated: true)
     }
     func textViewDidBeginEditing(_ textView: UITextView) {
@@ -115,6 +123,15 @@ class NewStatusController: UIViewController,UITextViewDelegate,UIImagePickerCont
             alert.addAction(action)
             self.present(alert, animated: true, completion: nil)
         }else{
+            
+            //Start Indicator
+            UIView.transition(with: self.viewIndicator, duration: 0.4, options: .showHideTransitionViews, animations: { 
+                self.viewIndicator.isHidden = false
+                self.activityIndicator.isHidden = false
+                self.activityIndicator.startAnimating()
+            }, completion: nil)
+            
+            
             let date = Date()
             let formater = DateFormatter()
             formater.dateFormat = "dd-MM-yyyy hh:mm:ss"
@@ -122,7 +139,7 @@ class NewStatusController: UIViewController,UITextViewDelegate,UIImagePickerCont
             print(result)
             let storageRef = FIRStorage.storage().reference().child("status").child("\(userInfo.idMember!)\(result).png")
             let imageData = UIImageJPEGRepresentation(imgStatus.image!, 1.0)
-            let uploadTask = storageRef.put(imageData!, metadata: nil, completion: { (metadata, error) in
+            _ = storageRef.put(imageData!, metadata: nil, completion: { (metadata, error) in
                 if error != nil {
                     let alert = UIAlertController(title: "Failed", message: (error?.localizedDescription)!, preferredStyle: .alert)
                     let action = UIAlertAction(title: "OK", style: .default, handler: { (action) in
@@ -134,9 +151,11 @@ class NewStatusController: UIViewController,UITextViewDelegate,UIImagePickerCont
                     print((metadata?.downloadURL())!)
                     let databaseRef = FIRDatabase.database().reference().child("status").child("\(self.userInfo.idMember!)\(result)")
                     databaseRef.setValue(["Content":self.txtStatus.text!,"Image":"\((metadata?.downloadURL())!)","UserID":self.userInfo.idMember,"Time":result])
+                    
                     self.navigationController?.popViewController(animated: true)
                 }
             })
+            
         }
     }
 }

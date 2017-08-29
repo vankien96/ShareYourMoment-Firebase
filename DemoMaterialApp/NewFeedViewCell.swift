@@ -16,12 +16,14 @@ class NewFeedViewCell: UICollectionViewCell {
     @IBOutlet var imgmain: UIImageView!
     @IBOutlet var Status: UITextView!
     @IBOutlet var btnMemberDetail: UIButton!
+    @IBOutlet var indicator: UIActivityIndicatorView!
     
     
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
-        imgAvatar.layer.cornerRadius = 20.0
-        imgAvatar.clipsToBounds = true
+        //imgAvatar.layer.cornerRadius = 20.0
+        //imgAvatar.clipsToBounds = true
+        indicator.startAnimating()
     }
 }

@@ -9,11 +9,12 @@
 import Foundation
 import UIKit
 import Firebase
+
 struct AStatus{
     var idMember:String!
     var time:String!
     var status:String!
-    var image:UIImage!
+    var image:String!
 }
 
 class GetStatusData{
@@ -25,18 +26,19 @@ class GetStatusData{
                 for item in value{
                     var status = AStatus()
                     if let infoDic = item.value as? [String:String]{
-                        let data = try? Data(contentsOf: URL(string: infoDic["Image"]!)!)
-                        let image = UIImage(data: data!)
-                        status.image = image
+                        status.image = infoDic["Image"]
                         status.status = infoDic["Content"]
                         status.time = infoDic["Time"]
                         status.idMember = infoDic["UserID"]
                     }
+                    print("finished")
                     statusData.append(status)
                 }
+                statusData.sort(by: { (a, b) -> Bool in
+                    return a.time > b.time
+                })
                 completion(statusData)
             }
         })
-        
     }
 }

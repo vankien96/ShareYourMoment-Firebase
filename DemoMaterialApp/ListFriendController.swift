@@ -107,6 +107,7 @@ class ListFriendController: UIViewController,UITableViewDataSource,UITableViewDe
         tableView.endUpdates()
     }
     @IBAction func clickOnButtonBack(_ sender: Any) {
+        self.btnBack.isUserInteractionEnabled = false
         self.navigationController?.popViewController(animated: true)
     }
 }

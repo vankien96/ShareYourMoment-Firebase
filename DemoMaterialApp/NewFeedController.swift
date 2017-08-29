@@ -9,8 +9,10 @@
 import UIKit
 import Firebase
 
+
 class NewFeedController: UIViewController,UICollectionViewDataSource,UICollectionViewDelegate,UICollectionViewDelegateFlowLayout{
 
+    let refresh = UIRefreshControl()
     
     @IBOutlet var viewButtonBack: UIView!
     @IBOutlet var lbName: UILabel!
@@ -31,38 +33,93 @@ class NewFeedController: UIViewController,UICollectionViewDataSource,UICollectio
     var memberData:[Member] = [Member]()
     var userInfo:Member!
     
+    var cacheImage = NSCache<NSString,UIImage>()
+    
+    @IBOutlet var loadingIcon: UIActivityIndicatorView!
+    
     var originalSizeOfCell:CGRect!
     var indexPath:IndexPath!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         newFeedCollection.dataSource = self
         newFeedCollection.delegate = self
+        
+        
+        //refresh controller
+        refresh.attributedTitle = NSAttributedString(string: "Pull to refresh")
+        if #available(iOS 10.0, *) {
+            newFeedCollection.refreshControl = refresh
+        } else {
+            // Fallback on earlier versions
+            newFeedCollection.addSubview(refresh)
+        }
+        refresh.addTarget(self, action: #selector(self.reloadNewFeedData(_:)), for: .valueChanged)
+        
+        
+        
+        
         let nib = UINib(nibName: "NewFeedViewCell", bundle: nil)
         newFeedCollection.register(nib, forCellWithReuseIdentifier: "newFeedViewCell")
-        
+        loadingIcon.startAnimating()
         //get data
-        GetMemberData.getMemberData(completion:{ (user) in
+        GetMemberData.getMemberData(completion:{[weak self] (user) in
             if user.count != 0{
-                self.memberData = user
+                self?.memberData = user
             }
         })
         print(UserDefaults.standard.string(forKey: "USERID")!)
-        GetMemberData.getProfile(userUID: UserDefaults.standard.string(forKey: "USERID")!) { (user) in
-            self.userInfo = user
-            self.lbName.text = self.userInfo.name
-            DispatchQueue.global(qos: .userInitiated).async {
-                let data = try? Data(contentsOf: URL(string: self.userInfo.image)!)
-                DispatchQueue.main.async {
-                    self.imgAvatar.image = UIImage(data: data!)
-                }
-            }
-        }
-        GetStatusData.getStatusData { (statusData) in
-            self.statusData = statusData
+        GetMemberData.getProfile(userUID: UserDefaults.standard.string(forKey: "USERID")!) {[weak self] (user) in
+            self?.userInfo = user
+            self?.lbName.text = self?.userInfo.name
+            
+            let data = try? Data(contentsOf: URL(string: (self?.userInfo.image)!)!)
             DispatchQueue.main.async {
-                self.newFeedCollection.reloadData()
+                self?.imgAvatar.image = UIImage(data: data!)
+            }
+            
+        }
+        GetStatusData.getStatusData {[weak self] (status) in
+            print("test")
+            self?.statusData = status
+            DispatchQueue.main.async {
+                self?.newFeedCollection.reloadData()
+                self?.loadingIcon.stopAnimating()
+                self?.loadingIcon.isHidden = true
             }
         }
+    }
+    func reloadNewFeedData(_ sender:Any){
+        loadingIcon.isHidden = false
+        loadingIcon.startAnimating()
+        //get data
+        GetMemberData.getMemberData(completion:{[weak self] (user) in
+            if user.count != 0{
+                self?.memberData = user
+            }
+        })
+        print(UserDefaults.standard.string(forKey: "USERID")!)
+        GetMemberData.getProfile(userUID: UserDefaults.standard.string(forKey: "USERID")!) {[weak self] (user) in
+            self?.userInfo = user
+            self?.lbName.text = self?.userInfo.name
+            
+            let data = try? Data(contentsOf: URL(string: (self?.userInfo.image)!)!)
+            DispatchQueue.main.async {
+                self?.imgAvatar.image = UIImage(data: data!)
+            }
+            
+        }
+        GetStatusData.getStatusData {[weak self] (status) in
+            print("test")
+            self?.statusData = status
+            DispatchQueue.main.async {
+                self?.newFeedCollection.reloadData()
+                self?.loadingIcon.stopAnimating()
+                self?.loadingIcon.isHidden = true
+                self?.refresh.endRefreshing()
+            }
+        }
+
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -73,6 +130,7 @@ class NewFeedController: UIViewController,UICollectionViewDataSource,UICollectio
         viewButtonBack.layer.cornerRadius = 20
         viewContainNewFeed.transform = .identity
         
+        self.viewContainNewFeed.isUserInteractionEnabled = true
         self.viewButtonAdd.isUserInteractionEnabled = true
     }
     override func didReceiveMemoryWarning() {
@@ -82,6 +140,7 @@ class NewFeedController: UIViewController,UICollectionViewDataSource,UICollectio
     
     
     
+// CollectionView
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return statusData.count
@@ -89,29 +148,67 @@ class NewFeedController: UIViewController,UICollectionViewDataSource,UICollectio
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "newFeedViewCell", for: indexPath) as! NewFeedViewCell
         
-        let member = foundMember(statusData[indexPath.item].idMember)
-        cell.imgmain.image = UIImage()
-        DispatchQueue.global(qos: .userInitiated).async {
-            let dataAvatar = try? Data(contentsOf: URL(string: member.image)!)
-            DispatchQueue.main.async {
-                UIView.transition(with: cell.imgmain, duration: 0.4, options: .transitionCrossDissolve, animations: {
-                    cell.imgAvatar.image = UIImage(data: dataAvatar!)
-                    cell.imgmain.image = self.statusData[indexPath.row].image
-                }, completion: nil)
-            }
+        
+        if let image = cacheImage.object(forKey: statusData[indexPath.row].image as NSString){
+            cell.imgmain.image = image
+        }else{
+            print("Not")
+            cell.imgmain.image = nil
+            let url = URL(string: statusData[indexPath.row].image)
+            URLSession.shared.dataTask(with: url!, completionHandler: { (data, response, error) in
+                if error != nil {
+                    print((error?.localizedDescription)!)
+                }else if data != nil{
+                    let imageCache = UIImage(data: data!)
+                    self.cacheImage.setObject(imageCache!, forKey: self.statusData[indexPath.row].image as NSString)
+                    DispatchQueue.main.async {
+                        UIView.transition(with: cell.imgmain, duration: 0.3, options: .transitionCrossDissolve, animations: { 
+                            cell.imgmain.image = imageCache
+                            cell.indicator.stopAnimating()
+                            cell.indicator.isHidden = true
+                        }, completion: nil)
+                    }
+                }
+            }).resume()
         }
-        cell.lbName.text = member.name
+        //Member Info
+        if let member = foundMember(statusData[indexPath.item].idMember) {
+            cell.lbName.text = member.name
+            
+            //Get index of member in memberData
+            if let index = memberData.index(where: { (item:Member) -> Bool in
+                item.idMember == member.idMember
+            }){
+                cell.btnMemberDetail.tag = index
+            }
+            
+            cell.btnMemberDetail.addTarget(self, action: #selector(clickOnMoreDetailMember(_:)), for: .touchUpInside)
+            if let image = cacheImage.object(forKey: member.idMember! as NSString){
+                cell.imgAvatar.image = image
+            }else{
+                cell.imgAvatar.image = nil
+                let url = URL(string: member.image)
+                URLSession.shared.dataTask(with: url!, completionHandler: { (data, response, error) in
+                    if error != nil {
+                        print((error?.localizedDescription)!)
+                    }else if data != nil{
+                        let imageCache = UIImage(data: data!)
+                        let imageCorner = imageCache?.createRadius(newsize: cell.imgAvatar.bounds.size, radius: 20.0, byRoundingCorner: [.topRight,.topLeft,.bottomLeft,.bottomRight])
+                        self.cacheImage.setObject(imageCorner!, forKey: member.idMember! as NSString)
+                        DispatchQueue.main.async {
+                            UIView.transition(with: cell.imgAvatar, duration: 0.3, options: .transitionCrossDissolve, animations: {
+                                cell.imgAvatar.image = imageCorner
+                            }, completion: nil)
+                        }
+                    }
+                }).resume()
+            }
+            
+        }
+        
         cell.lbTime.text = statusData[indexPath.item].time
         cell.Status.text = statusData[indexPath.item].status
         
-        //Get index of member in memberData
-        if let index = memberData.index(where: { (item:Member) -> Bool in
-            item.idMember == member.idMember
-        }){
-            cell.btnMemberDetail.tag = index
-        }
-        
-        cell.btnMemberDetail.addTarget(self, action: #selector(clickOnMoreDetailMember(_:)), for: .touchUpInside)
         
         // set shadow around the Cell
 //        cell.contentView.layer.cornerRadius = 10
@@ -156,7 +253,10 @@ class NewFeedController: UIViewController,UICollectionViewDataSource,UICollectio
         
     }
     
-    func foundMember(_ idMember:String) -> Member{
+    //End Config CollectionView
+    
+    
+    func foundMember(_ idMember:String) -> Member?{
         for member in memberData {
             if member.idMember == idMember{
                 return member
@@ -233,12 +333,31 @@ class NewFeedController: UIViewController,UICollectionViewDataSource,UICollectio
     
     
     
-    func resizeImage(with image: UIImage) -> UIImage {
-        let newSize = CGSize(width: self.view.frame.width, height: (self.view.frame.width*image.size.height)/image.size.width)
-        UIGraphicsBeginImageContext(newSize)
-        image.draw(in: CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height))
-        let newImage: UIImage? = UIGraphicsGetImageFromCurrentImageContext()
+//    func resizeImage(with image: UIImage) -> UIImage {
+//        let newSize = CGSize(width: self.view.frame.width, height: (self.view.frame.width*image.size.height)/image.size.width)
+//        UIGraphicsBeginImageContext(newSize)
+//        image.draw(in: CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height))
+//        let newImage: UIImage? = UIGraphicsGetImageFromCurrentImageContext()
+//        UIGraphicsEndImageContext()
+//        return newImage!
+//    }
+}
+
+
+extension UIImage{
+    func createRadius(newsize:CGSize,radius:CGFloat,byRoundingCorner:UIRectCorner?) -> UIImage?{
+        UIGraphicsBeginImageContextWithOptions(newsize, false, 0.0)
+        let imgRect = CGRect(x: 0, y: 0, width: newsize.width, height: newsize.height)
+        if let roundingCorner = byRoundingCorner{
+            UIBezierPath(roundedRect: imgRect, byRoundingCorners: roundingCorner, cornerRadii: CGSize(width: radius, height: radius)).addClip()
+        }else{
+            UIBezierPath(roundedRect: imgRect, cornerRadius: radius).addClip()
+        }
+        self.draw(in: imgRect)
+        
+        let result = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
-        return newImage!
+        
+        return result
     }
 }

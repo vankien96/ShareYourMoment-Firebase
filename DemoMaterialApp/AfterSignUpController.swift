@@ -22,6 +22,8 @@ class AfterSignUpController: UIViewController,UITextFieldDelegate,UIImagePickerC
     var email:String!
     var userUID:String?
     
+    var RegisterOrEdit:String!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.hideKeyboardWhenTappedAround()
@@ -31,8 +33,13 @@ class AfterSignUpController: UIViewController,UITextFieldDelegate,UIImagePickerC
         txtAbout.delegate = self
     }
     override func viewWillAppear(_ animated: Bool) {
+        
+        if RegisterOrEdit == "Register"{
+            print("Register")
+        }else{
+            print("Edit")
+        }
         btnEdit.layer.cornerRadius = 25
-        imgAvatar.layer.cornerRadius = 75
         btnEdit.setImage(btnEdit.currentImage?.tint(with: UIColor.black), for: .normal)
         
     }
@@ -66,7 +73,7 @@ class AfterSignUpController: UIViewController,UITextFieldDelegate,UIImagePickerC
         var chosenImage = UIImage()
         chosenImage = info[UIImagePickerControllerEditedImage] as! UIImage
         dismiss(animated: true, completion: nil)
-        self.imgAvatar.image = chosenImage
+        self.imgAvatar.image = chosenImage.createRadius(newsize: self.imgAvatar.bounds.size, radius: 75.0, byRoundingCorner: [.allCorners])
     }
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
@@ -84,14 +91,24 @@ class AfterSignUpController: UIViewController,UITextFieldDelegate,UIImagePickerC
             print("nil")
             
         }else{
-            print("set value")
-            var ref:FIRDatabaseReference!
-            ref = FIRDatabase.database().reference()
-            self.uploadImage(completion: { (metadata) in
-                ref.child("users").child(self.userUID!).setValue(["Name":self.txtName.text!,"Phone":self.txtPhone.text!,"Address":self.txtAddress.text!,"Email":self.email,"About":self.txtAbout.text!,"Image":"\((metadata.downloadURL())!)"])
-                let controller = self.storyboard?.instantiateViewController(withIdentifier: "NewFeedController") as! NewFeedController
-                self.navigationController?.pushViewController(controller, animated: true)
-            })
+            if RegisterOrEdit == "Register"{
+                print("Register")
+                var ref:FIRDatabaseReference!
+                ref = FIRDatabase.database().reference()
+                self.uploadImage(completion: { (metadata) in
+                    ref.child("users").child(self.userUID!).setValue(["Name":self.txtName.text!,"Phone":self.txtPhone.text!,"Address":self.txtAddress.text!,"Email":self.email,"About":self.txtAbout.text!,"Image":"\((metadata.downloadURL())!)"])
+                    let controller = self.storyboard?.instantiateViewController(withIdentifier: "NewFeedController") as! NewFeedController
+                    self.navigationController?.pushViewController(controller, animated: true)
+                })
+            }else{
+                print("edit")
+                var ref:FIRDatabaseReference!
+                ref = FIRDatabase.database().reference()
+                self.uploadImage(completion: { (metadata) in
+                    ref.child("users").child(self.userUID!).updateChildValues(["Name":self.txtName.text!,"Phone":self.txtPhone.text!,"Address":self.txtAddress.text!,"Email":self.email,"About":self.txtAbout.text!,"Image":"\((metadata.downloadURL())!)"])
+                    self.navigationController?.popViewController(animated: true)
+                })
+            }
         }
         
         
@@ -103,7 +120,7 @@ class AfterSignUpController: UIViewController,UITextFieldDelegate,UIImagePickerC
             let metadataUpload = FIRStorageMetadata()
             metadataUpload.contentType = "image/jpeg"
             
-            let uploadTask = storageRef.put(data, metadata: metadataUpload, completion: { (metadata, error) in
+            _ = storageRef.put(data, metadata: metadataUpload, completion: { (metadata, error) in
                 if error != nil {
                     print((error?.localizedDescription)!)
                 }else{

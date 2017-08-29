@@ -12,18 +12,18 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="gTV-IL-0wX" customClass="NewFeedViewCell" customModule="DemoMaterialApp" customModuleProvider="target">
-            <rect key="frame" x="0.0" y="0.0" width="312" height="300"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="gTV-IL-0wX" customClass="NewFeedViewCell" customModule="ShareYourMoment" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="347" height="300"/>
             <autoresizingMask key="autoresizingMask"/>
             <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
-                <rect key="frame" x="0.0" y="0.0" width="312" height="300"/>
+                <rect key="frame" x="0.0" y="0.0" width="347" height="300"/>
                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 <subviews>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="L3d-6e-Vbt">
-                        <rect key="frame" x="0.0" y="0.0" width="312" height="300"/>
+                        <rect key="frame" x="0.0" y="0.0" width="347" height="300"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xf5-UC-ct5">
-                                <rect key="frame" x="0.0" y="0.0" width="312" height="50"/>
+                                <rect key="frame" x="0.0" y="0.0" width="347" height="50"/>
                                 <subviews>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="man2" translatesAutoresizingMaskIntoConstraints="NO" id="UHW-nO-ltc">
                                         <rect key="frame" x="20" y="4.5" width="40" height="40"/>
@@ -67,7 +67,7 @@
                                         </constraints>
                                     </view>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="n6D-ir-m1N">
-                                        <rect key="frame" x="0.0" y="0.0" width="312" height="50"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="347" height="50"/>
                                     </button>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -84,22 +84,27 @@
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="OFX-Vc-nKa">
-                                <rect key="frame" x="0.0" y="50" width="312" height="250"/>
+                                <rect key="frame" x="0.0" y="50" width="347" height="250"/>
                                 <subviews>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="imgFeed" translatesAutoresizingMaskIntoConstraints="NO" id="euX-FG-gfb">
-                                        <rect key="frame" x="0.0" y="0.0" width="312" height="174.5"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="347" height="174.5"/>
                                     </imageView>
                                     <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" text="Lorem Ipsum is simply dummy text of the printing and typesetting industry." textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="aaz-sZ-9sH">
-                                        <rect key="frame" x="0.0" y="174.5" width="312" height="75.5"/>
+                                        <rect key="frame" x="0.0" y="174.5" width="347" height="75.5"/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                     </textView>
+                                    <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="cof-om-2dg">
+                                        <rect key="frame" x="163" y="77" width="20" height="20"/>
+                                    </activityIndicatorView>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstItem="aaz-sZ-9sH" firstAttribute="leading" secondItem="OFX-Vc-nKa" secondAttribute="leading" id="4zn-gW-wfM"/>
+                                    <constraint firstItem="cof-om-2dg" firstAttribute="centerY" secondItem="euX-FG-gfb" secondAttribute="centerY" id="8hV-em-ztU"/>
+                                    <constraint firstItem="cof-om-2dg" firstAttribute="centerX" secondItem="euX-FG-gfb" secondAttribute="centerX" id="QTN-t5-RlH"/>
                                     <constraint firstItem="euX-FG-gfb" firstAttribute="width" secondItem="OFX-Vc-nKa" secondAttribute="width" id="RQx-8a-UoI"/>
                                     <constraint firstItem="euX-FG-gfb" firstAttribute="centerX" secondItem="OFX-Vc-nKa" secondAttribute="centerX" id="dWD-9z-FOD"/>
                                     <constraint firstAttribute="bottom" secondItem="aaz-sZ-9sH" secondAttribute="bottom" id="gAD-CU-HIA"/>
@@ -129,16 +134,17 @@
                 <constraint firstItem="L3d-6e-Vbt" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="Lxf-Op-GUf"/>
                 <constraint firstAttribute="trailing" secondItem="L3d-6e-Vbt" secondAttribute="trailing" id="Lyx-bm-Beq"/>
             </constraints>
-            <size key="customSize" width="312" height="300"/>
+            <size key="customSize" width="347" height="300"/>
             <connections>
                 <outlet property="Status" destination="aaz-sZ-9sH" id="hQx-jS-Miv"/>
                 <outlet property="btnMemberDetail" destination="n6D-ir-m1N" id="xVa-Dh-RYU"/>
                 <outlet property="imgAvatar" destination="UHW-nO-ltc" id="dxw-Ri-YYK"/>
                 <outlet property="imgmain" destination="euX-FG-gfb" id="8Tb-bK-5YW"/>
+                <outlet property="indicator" destination="cof-om-2dg" id="KsD-xE-SFo"/>
                 <outlet property="lbName" destination="Zg8-I5-0ui" id="akz-zM-xZl"/>
                 <outlet property="lbTime" destination="Cq7-JC-OF8" id="XvZ-oc-qGM"/>
             </connections>
-            <point key="canvasLocation" x="124" y="85"/>
+            <point key="canvasLocation" x="106.5" y="85"/>
         </collectionViewCell>
     </objects>
     <resources>

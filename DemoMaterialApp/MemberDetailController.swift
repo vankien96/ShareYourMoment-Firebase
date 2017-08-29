@@ -52,6 +52,7 @@ class MemberDetailController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     @IBAction func clickOnButtonBack(_ sender: Any) {
+        self.btnBack.isUserInteractionEnabled = false
         self.navigationController?.popViewController(animated: true)
     }
 

@@ -11,7 +11,6 @@ import FirebaseAuth
 
 class ProfileController: UIViewController {
 
-    @IBOutlet var btnSave: UIButton!
     @IBOutlet var imgAvatar: UIImageView!
     @IBOutlet var btnBack: UIButton!
     @IBOutlet var txtName: UITextField!
@@ -23,6 +22,7 @@ class ProfileController: UIViewController {
     var userInfo:Member!
     
     @IBOutlet var viewInfo: UIView!
+    @IBOutlet var btnEdit: UIButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,7 +33,6 @@ class ProfileController: UIViewController {
     }
     override func viewWillAppear(_ animated: Bool) {
         btnBack.setImage(UIImage(named: "icon_backspace")?.tint(with: UIColor.white), for: .normal)
-        btnSave.layer.cornerRadius = 10
         
         viewInfo.layer.borderWidth = 1.0
         viewInfo.layer.borderColor = UIColor.clear.cgColor
@@ -46,6 +45,8 @@ class ProfileController: UIViewController {
         imgAvatar.clipsToBounds = true
         imgAvatar.layer.cornerRadius = 40
         self.setDataToview()
+        self.btnBack.isUserInteractionEnabled = true
+        
         
     }
     func setDataToview() {
@@ -71,19 +72,10 @@ class ProfileController: UIViewController {
     }
     @IBAction func clickOnButtonBack(_ sender: Any) {
         
-        
+        self.btnBack.isUserInteractionEnabled = false
         self.navigationController?.popViewController(animated: true)
         
         
-    }
-    
-    @IBAction func clickOnButtonEdit(_ sender: Any) {
-        self.enableEdit(true)
-        txtName.becomeFirstResponder()
-    }
-
-    @IBAction func clickOnButtonSaveButton(_ sender: Any) {
-        self.enableEdit(false)
     }
     
     func enableEdit(_ edit:Bool){
@@ -93,5 +85,13 @@ class ProfileController: UIViewController {
         txtEmail.isUserInteractionEnabled = edit
         
     }
+    @IBAction func clickOnButtonEdit(_ sender: Any) {
+        let controller = self.storyboard?.instantiateViewController(withIdentifier: "AfterSignUpController") as! AfterSignUpController
+        controller.RegisterOrEdit = "Edit"
+        controller.userUID = FIRAuth.auth()?.currentUser?.uid
+        controller.email = FIRAuth.auth()?.currentUser?.email
+        self.navigationController?.pushViewController(controller, animated: true)
+    }
+    
 
 }

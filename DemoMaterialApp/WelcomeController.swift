@@ -78,7 +78,7 @@ class WelcomeController: UIViewController,UITextFieldDelegate {
         self.hideKeyboardWhenTappedAround()
         txtUsername.delegate = self
         txtPassword.delegate = self
-        if userDefaults.string(forKey: "USERID") != ""{
+        if userDefaults.string(forKey: "USERID") != "" && userDefaults.string(forKey: "USERID") != nil{
             let controller = self.storyboard?.instantiateViewController(withIdentifier: "NewFeedController") as! NewFeedController
             
             self.navigationController?.pushViewController(controller, animated: true)
@@ -247,6 +247,7 @@ class WelcomeController: UIViewController,UITextFieldDelegate {
                         let controller = self.storyboard?.instantiateViewController(withIdentifier: "AfterSignUpController") as! AfterSignUpController
                         controller.userUID = user?.uid
                         controller.email = self.txtEmailSignUp.text!
+                        controller.RegisterOrEdit = "Register"
                         self.navigationController?.pushViewController(controller, animated: true)
                     }
                 })
